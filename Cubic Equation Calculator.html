@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+    <meta name="Calculator" content="The Cubic Equation Calculator is a powerful tool used to solve cubic equations quickly and accurately. By simply inputting the coefficients of the cubic equation, users can obtain the roots or solutions of the equation. This calculator is invaluable in fields such as engineering, physics, and mathematics, where cubic equations frequently arise in modeling real-world phenomena.">
+  <meta name="keywords" content="Cubic Equation Calculator">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cubic Equation Calculator</title>
+  <style>
+       /* General styles */
+       .calculator-box__main {
+           background: #fff;
+           box-shadow: 0 3px 6px rgba(0, 0, 0, .3);
+           width: 100%;
+           border-radius: 0.6em;
+           padding: 2em;
+           box-sizing: border-box;
+           color: #000;
+       }
+
+       .calculator-box {
+           width: 100%;
+           margin-bottom: 30px;
+       }
+
+       .calculator-operation {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+       }
+
+       .calculator-operation__left,
+       .calculator-operation__right {
+           display: flex;
+           flex-wrap: wrap;
+           align-items: center;
+           column-gap: 13px;
+       }
+
+       .app-font.calculator-text.calculator-text--large {
+           font-size: 1.3em;
+           padding: 0 0.3em;
+           margin: 0;
+       }
+
+       .calculator-input {
+           display: flex;
+           align-items: center;
+           margin-bottom: 10px;
+           /* flex: 0 0 calc(33.33% - 10px); */
+           /* 33.33% width for each input field on larger screens */
+       }
+
+       .calculator-box__main input {
+           text-align: right;
+           background: #efeff5;
+           border: 0;
+           outline: 0;
+           border-radius: 0.4em;
+           font-size: 1.4em;
+           font-weight: 300;
+           padding: 0.6em;
+           -moz-appearance: textfield;
+           width: 7em;       }
+           
+           .input-result{
+                      }
+
+       .calculator-operation__right {
+           text-align: end !important;
+       }
+
+       .calculator-button {
+        padding: 10px 20px;
+        background-color: #000000;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      .calculator-button:hover {
+        background-color: #efeff5;
+        color: #000000;
+      }
+
+      .calculator-button:focus {
+        outline: none;
+        background-color: #000000;
+        color: #ffffff;
+      }
+       .calculator-box__main input[disabled] {
+           background-color: #f0f0f0;
+           color: #333;
+       }
+  </style>
+</head>
+<body>
+  <div class="calculator-box">
+    <div class="calculator-box__main">
+      <div class="calculator-operation">
+        <!-- Coefficients for cubic equation -->
+        <div class="calculator-operation__left">
+          <input class="input-coefficient" placeholder="a" type="number" step="any">
+          <span>x^3 + </span>
+          <input class="input-coefficient" placeholder="b" type="number" step="any">
+          <span>x^2 + </span>
+          <input class="input-coefficient" placeholder="c" type="number" step="any">
+          <span>x + </span>
+          <input class="input-coefficient" placeholder="d" type="number" step="any">
+          <span>= 0</span>
+        </div>
+        <!-- Calculate button -->
+        <div class="calculator-operation__right">
+          <div slot="right"></div>
+          <button class="calculator-button" onclick="calculateCubic()">Calculate</button>
+        </div>
+      </div>
+      <!-- Result placeholders -->
+      <div class="app-font calculator-text calculator-text--small">X=</div>
+      <div class="results">
+        <input class="input-result" placeholder="x" type="text" value="" disabled>
+      </div>
+    </div>
+    <div class="calculator-box__history"></div>
+  </div>
+
+  <script>
+function solveCubic(a, b, c, d) {
+  if (a === 0) return []; // Not a cubic equation
+
+  b /= a;
+  c /= a;
+  d /= a;
+
+  const p = (3 * c - b * b) / 3;
+  const q = (2 * b * b * b - 9 * b * c + 27 * d) / 27;
+  const discriminant = Math.pow(q / 2, 2) + Math.pow(p / 3, 3);
+  const roots = [];
+
+  if (discriminant === 0) {
+    // Double or triple root
+    const u = Math.cbrt(-q / 2);
+    
+    if (b * b * b === 27 * d) { // Triple root check
+      roots.push(-u - b / 3);
+      roots.push(-u - b / 3);
+      roots.push(-u - b / 3);
+    } else { // One single and one double root
+      roots.push(2 * u - b / 3);
+      roots.push(-u - b / 3);
+    }
+    
+  } else if (discriminant > 0) {
+    // One real root
+    const sd = Math.sqrt(discriminant);
+    const u = Math.cbrt(-q / 2 - sd);
+    const v = Math.cbrt(-q / 2 + sd);
+    roots.push(u + v - b / 3);
+  } else {
+    // Three real roots
+    const r = 2 * Math.sqrt(-p / 3);
+    const phi = Math.acos(-q / (2 * Math.sqrt(-(p / 3) ^ 3))) / 3;
+    roots.push(r * Math.cos(phi) - b / 3);
+    roots.push(r * Math.cos((phi + 2 * Math.PI) / 3) - b / 3);
+    roots.push(r * Math.cos((phi + 4 * Math.PI) / 3) - b / 3);
+  }
+  
+  return roots.sort((a, b) => a - b); // Sort roots numerically
+}
+
+    
+function calculateCubic() {
+  const coeffs = document.querySelectorAll('.input-coefficient');
+  const a = parseFloat(coeffs[0].value) || 0;
+  const b = parseFloat(coeffs[1].value) || 0;
+  const c = parseFloat(coeffs[2].value) || 0;
+  const d = parseFloat(coeffs[3].value) || 0;
+
+  const roots = solveCubic(a, b, c, d);
+  const rootElements = document.querySelectorAll('.input-result');
+  
+  rootElements.forEach((element, index) => {
+    if (roots.length > index) {
+      element.value = roots[index].toFixed(6); // Display calculated root
+      element.placeholder = ""; // Clear placeholder
+    } else {
+      element.value = ""; // Clear value
+      element.placeholder = ""; // Indicate no root for this position
+    }
+  });
+}
+  </script>
+</body>
+</html>
